@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>مزرعة الواحات</title>
+<meta name="theme-color" content="#2F5D46">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="مزرعة الواحات">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+--bg:#F5F2EA; --card:#FFFFFF; --ink:#26241F; --muted:#6F6A5F; --line:#E3DED2;
+--green:#2F7A3E; --amber:#C98A12; --red:#B83A26; --brown:#6E4B33; --empty:#A39E92;
+--accent:#2F5D46; --accent-soft:#E4EEE7; --sand:#EFE7D6;
+--r:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;font-size:15px;-webkit-tap-highlight-color:transparent}
+button,select,input,textarea{font:inherit;color:inherit}
+#app{display:flex;flex-direction:column;height:100%;max-width:900px;margin:0 auto}
+header{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;background:var(--accent);color:#fff}
+header h1{font-size:17px;margin:0;font-weight:600;flex:1}
+header .sync{font-size:11px;opacity:.85;flex-basis:100%;order:9;margin-top:-4px}
+header{flex-wrap:wrap}
+.hbtn{border:0;background:rgba(255,255,255,.15);color:#fff;border-radius:999px;padding:4px 10px;font-size:13px;cursor:pointer}
+main{flex:1;overflow:auto;position:relative}
+nav.tabs{display:flex;background:#fff;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav.tabs button{flex:1;border:0;background:none;padding:8px 2px 10px;font-size:12px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
+nav.tabs button svg{width:22px;height:22px}
+nav.tabs button.on{color:var(--accent);font-weight:600}
+.view{display:none;padding:14px}
+.view.on{display:block}
+#v-map{padding:0;height:100%;position:relative}
+#v-map.on{display:flex;flex-direction:column}
+.maptools{display:flex;gap:6px;padding:8px 10px;background:#fff;border-bottom:1px solid var(--line);flex-wrap:wrap;align-items:center}
+.maptools select{border:1px solid var(--line);border-radius:10px;padding:6px 8px;background:#fff;font-size:13px}
+.mapwrap{flex:1;position:relative;overflow:hidden;background:#EDE6D4;touch-action:none}
+#map{width:100%;height:100%;display:block;cursor:grab}
+.zoom{position:absolute;left:10px;top:10px;display:flex;flex-direction:column;gap:6px}
+.zoom button{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:20px;line-height:1;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.legend{position:absolute;right:10px;bottom:10px;background:rgba(255,255,255,.94);border-radius:12px;padding:8px 10px;font-size:12px;box-shadow:0 1px 4px rgba(0,0,0,.1);max-width:60%}
+.legend div{display:flex;align-items:center;gap:6px;margin:2px 0;cursor:pointer}
+.legend div.off{opacity:.35}
+.dot{width:12px;height:12px;border-radius:50%;display:inline-block;flex:none}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:12px}
+.card h2{font-size:16px;margin:0 0 10px}
+.card h3{font-size:14px;margin:12px 0 6px;color:var(--muted);font-weight:600}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px}
+.kpi b{display:block;font-size:22px;font-weight:700}
+.kpi span{font-size:12px;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:7px 6px;border-bottom:1px solid var(--line);text-align:right}
+th{color:var(--muted);font-weight:600;font-size:12px}
+td.n,th.n{text-align:center;font-variant-numeric:tabular-nums}
+.btn{border:0;border-radius:10px;padding:9px 14px;background:var(--accent);color:#fff;cursor:pointer;font-weight:600}
+.btn.ghost{background:var(--accent-soft);color:var(--accent)}
+.btn.small{padding:6px 10px;font-size:13px}
+.btn:disabled{opacity:.5}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 11px;font-size:13px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.chip.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.muted{color:var(--muted);font-size:13px}
+.note{background:var(--sand);border-radius:10px;padding:10px 12px;font-size:13px;color:#5A4A2E;line-height:1.6}
+label.f{display:block;font-size:12px;color:var(--muted);margin:8px 0 4px}
+.f-in{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 10px;background:#fff}
+textarea.f-in{min-height:70px;resize:vertical}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+/* sheet */
+.scrim{position:fixed;inset:0;background:rgba(20,18,14,.35);display:none;z-index:20}
+.scrim.on{display:block}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-width:900px;margin:0 auto;background:#fff;border-radius:18px 18px 0 0;max-height:86vh;overflow:auto;z-index:21;transform:translateY(105%);transition:transform .22s ease;padding:8px 16px 22px;box-shadow:0 -4px 20px rgba(0,0,0,.15)}
+.sheet.on{transform:none}
+.grab{width:42px;height:5px;border-radius:3px;background:#D9D3C5;margin:4px auto 10px}
+.ph{display:flex;align-items:center;gap:10px}
+.ph .code{font-size:22px;font-weight:700;letter-spacing:.5px}
+.ph .x{margin-inline-start:auto;border:0;background:var(--bg);width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.fact{background:var(--bg);border-radius:10px;padding:8px 10px}
+.fact span{display:block;font-size:11px;color:var(--muted)}
+.fact b{font-weight:600;font-size:14px}
+.loglist .li{border-bottom:1px solid var(--line);padding:9px 0;display:flex;gap:10px}
+.loglist .li:last-child{border-bottom:0}
+.li .ic{width:34px;height:34px;border-radius:10px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;flex:none;font-size:16px}
+.li .bd{flex:1;min-width:0}
+.li .t{font-weight:600;font-size:14px}
+.li .m{font-size:12px;color:var(--muted)}
+.li .tx{font-size:13px;margin-top:2px;white-space:pre-wrap}
+.li .m .pend{color:#C98A12}
+.li img{max-width:120px;border-radius:8px;margin-top:6px;display:block}
+.li .del{border:0;background:none;color:var(--muted);cursor:pointer;font-size:12px}
+.banner{background:#FFF4D6;color:#6A4E00;font-size:13px;padding:8px 12px;display:none}
+.banner.on{display:block}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#26241F;color:#fff;padding:9px 16px;border-radius:999px;font-size:13px;z-index:40;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+.month-tabs{display:flex;gap:4px;overflow-x:auto;padding-bottom:4px}
+.month-tabs button{flex:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 11px;font-size:13px;cursor:pointer}
+.month-tabs button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.task{display:flex;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.task:last-child{border-bottom:0}
+.task .q{margin-inline-start:auto;text-align:left;white-space:nowrap;font-variant-numeric:tabular-nums}
+.task .q small{display:block;color:var(--muted);font-size:11px}
+.pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.findbar{display:flex;gap:6px;align-items:center}
+.findbar input{width:110px;border:1px solid var(--line);border-radius:10px;padding:6px 8px;font-size:13px;direction:ltr;text-align:center}
+@media (min-width:700px){.kpis{grid-template-columns:repeat(6,1fr)}}
+</style>
+</head>
+<body>
+<div id="app">
+<header>
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"><path d="M12 22V10"/><path d="M12 10c-2-3-6-4-9-3 3 0 6 1 9 3z"/><path d="M12 10c2-3 6-4 9-3-3 0-6 1-9 3z"/><path d="M12 10c-1-3-4-6-7-6 2 1 5 3 7 6z"/><path d="M12 10c1-3 4-6 7-6-2 1-5 3-7 6z"/></svg>
+<h1>مزرعة الواحات</h1>
+<button class="hbtn" id="who">👤 <span id="whoName">—</span></button>
+<button class="hbtn" id="refresh" aria-label="تحديث">⟳</button>
+<span class="sync" id="sync">جاري التحميل…</span>
+</header>
+<div class="banner" id="banner"></div>
+<main>
+<section class="view on" id="v-map">
+<div class="maptools">
+<select id="colorMode" aria-label="التلوين">
+<option value="status">لوّن حسب: الحالة</option>
+<option value="variety">لوّن حسب: الصنف</option>
+<option value="age">لوّن حسب: العمر</option>
+</select>
+<select id="sectorFilter" aria-label="القطاع"></select>
+<div class="findbar">
+<input id="findIn" placeholder="3-2-15" inputmode="numeric" aria-label="كود النخلة">
+<button class="btn small" id="findBtn">روح</button>
+</div>
+</div>
+<div class="mapwrap" id="mapwrap">
+<svg id="map" xmlns="http://www.w3.org/2000/svg"></svg>
+<div class="zoom">
+<button id="zin" aria-label="تكبير">+</button>
+<button id="zout" aria-label="تصغير">−</button>
+<button id="zfit" aria-label="الأرض كلها" style="font-size:14px">⤢</button>
+<button id="gps" aria-label="أنا فين" style="font-size:17px">📍</button>
+</div>
+<div class="legend" id="legend"></div>
+</div>
+</section>
+<section class="view" id="v-sum"></section>
+<section class="view" id="v-log"></section>
+<section class="view" id="v-fert"></section>
+<section class="view" id="v-irr"></section>
+</main>
+<nav class="tabs" id="tabs">
+<button data-v="map" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg>الخريطة</button>
+<button data-v="sum"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>الملخص</button>
+<button data-v="log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 4h11l3 3v13H5z"/><path d="M8 10h8M8 14h8M8 18h5"/></svg>المتابعة</button>
+<button data-v="fert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 3h10l-1 4H8z"/><path d="M8 7l-2 14h12L16 7"/><path d="M10 12h4"/></svg>التسميد</button>
+<button data-v="irr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/></svg>الري</button>
+</nav>
+</div>
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet"><div class="grab"></div><div id="sheetBody"></div></div>
+<div class="toast" id="toast"></div>
+<script>
+window.__err=function(msg){var b=document.getElementById('banner');if(b){b.textContent='خطأ: '+msg;b.classList.add('on')}};window.addEventListener('error',function(e){__err(e.message+' @'+e.lineno+':'+e.colno)});window.addEventListener('unhandledrejection',function(e){__err(String(e.reason&&e.reason.stack||e.reason))});
+</script>
+<script>
+(async function(){
+"use strict";
+const $=s=>document.querySelector(s);
+const el=(t,a={},...k)=>{const e=document.createElement(t);for(const[x,y]of Object.entries(a)){if(x==='class')e.className=y;else if(x.startsWith('on'))e.addEventListener(x.slice(2),y);else if(x==='html')e.innerHTML=y;else e.setAttribute(x,y)}for(const c of k.flat()){if(c==null)continue;e.append(c.nodeType?c:document.createTextNode(c))}return e};
+const NS='http://www.w3.org/2000/svg';
+const sv=(t,a={})=>{const e=document.createElementNS(NS,t);for(const[x,y]of Object.entries(a))e.setAttribute(x,y);return e};
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=n=>(Math.round(n*100)/100).toLocaleString('en-US');
+const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('on'),2200)};
+const C=id=>'\u2066'+id+'\u2069';
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+/* ---------- static farm data (from AutoCAD + Excel) ---------- */
+const F=/*FARM*/{"boundary":[[428.4,15.0],[626.6,673.9],[453.6,768.9],[375.5,653.1],[174.1,499.2],[15.0,258.4],[65.9,199.1]],"lines":[[[626.6,673.9],[453.6,768.9]],[[422.0,519.2],[536.4,723.5]],[[426.8,515.6],[541.6,720.6]],[[626.6,673.9],[539.0,722.0],[542.5,729.7]],[[214.4,123.8],[422.0,519.2]],[[296.0,266.2],[476.4,174.6]],[[282.0,239.6],[309.9,292.8]],[[476.4,174.6],[296.0,266.2]],[[325.7,322.9],[495.1,236.8]],[[311.8,296.3],[339.6,349.4]],[[355.4,379.6],[513.9,299.1]],[[341.5,353.0],[426.8,515.6]],[[385.2,436.2],[532.6,361.4]],[[218.9,121.4],[279.3,236.6]],[[551.4,423.6],[415.8,492.5]],[[415.8,492.5],[551.4,423.6]],[[265.3,210.0],[457.7,112.3]],[[467.6,-4.9],[-39.8,252.8]],[[462.6,-11.3],[-43.2,245.6]],[[213.8,118.4],[216.1,122.8],[216.4,119.5]],[[216.1,122.8],[212.4,121.6]]],"well":[371.71,508.85],"solar":[[377.3,516.0],[363.5,522.0],[369.5,535.7],[383.3,529.7],[389.3,543.5]],"rest":[[[365.1,495.1],[371.2,492.4]],[[365.2,495.2],[371.2,492.6]],[[364.4,498.9],[372.5,495.3]],[[364.5,499.1],[372.5,495.5]],[[367.0,499.3],[370.7,497.6]],[[367.1,499.4],[370.8,497.8]],[[366.0,502.6],[374.1,499.1]],[[366.1,502.8],[374.2,499.3]],[[365.1,495.1],[368.1,501.9]],[[365.3,495.0],[368.3,501.8]],[[364.4,498.9],[366.1,502.8]],[[364.6,498.8],[366.3,502.7]],[[368.1,493.8],[369.4,496.9]],[[368.2,493.7],[369.6,496.8]],[[371.0,492.5],[374.0,499.4]],[[371.2,492.4],[374.2,499.3]],[[368.6,498.5],[369.8,501.2]],[[368.8,498.5],[370.0,501.1]],[[370.6,497.7],[371.7,500.4]],[[370.7,497.6],[371.9,500.3]],[[369.1,499.6],[368.8,499.7]],[[369.0,500.2],[369.3,500.1]],[[369.0,500.2],[368.8,499.7]],[[368.1,501.9],[365.1,495.1],[371.2,492.4],[374.2,499.3]],[[367.6,499.9],[367.3,499.1]],[[367.3,499.1],[367.7,499.8]],[[368.1,501.9],[365.1,495.1],[371.2,492.4],[374.2,499.3]],[[371.7,496.1],[372.4,495.8]],[[372.4,495.8],[371.7,496.1]],[[365.8,498.6],[366.5,498.3]],[[366.6,498.3],[365.8,498.6]]],"texts":[{"t":"الطريق الرئيسي اللي بيوصل للارض","p":[237.2,106.5]},{"t":"مدخل الارض","p":[188.4,137.9]},{"t":"استراحة العامل","p":[349.3,486.2]},{"t":"البير","p":[363.9,502.5]},{"t":"الطاقة الشمسية","p":[372.6,519.2]},{"t":"طريق داخلي عرض 6 متر","p":[242.5,165.8]}],"variety":{"5":"صعيدي","4":"مجدول","3":"مجدول","2":"صعيدي","1":"صعيدي"},"areaM2":237930,"plantedDate":"2025-05-25","w":641.6,"h":783.9,"llAff":[[-2783391.6634580633,-1704.1648489408321,98124.47599173439],[3174143.3642068813,-110811.74347050994,-1508.8132314562295]],"llInv":[[-1.3872976739636647e-07,-9.022180775207874e-06],[1.0188727853090571e-05,-1.5669162237558504e-07],[-2783391.6634580633,3174143.3642068813]],"L":[[1,1,387.9,439.3,21,[[1,21]]],[1,2,391.7,446.4,21,[[1,21]]],[1,3,395.4,453.5,21,[[1,21]]],[1,4,399.1,460.6,21,[[1,21]]],[1,5,402.8,467.7,20,[[1,20]]],[1,6,406.5,474.8,20,[[1,20]]],[1,7,410.2,481.8,20,[[1,20]]],[1,8,414.0,488.9,20,[[1,20]]],[2,1,358.2,382.6,22,[[1,22]]],[2,2,361.9,389.7,22,[[1,22]]],[2,3,365.6,396.8,21,[[1,21]]],[2,4,369.4,403.9,21,[[1,21]]],[2,5,373.1,411.0,21,[[1,21]]],[2,6,376.8,418.1,21,[[1,21]]],[2,7,380.5,425.2,21,[[1,21]]],[2,8,384.2,432.2,21,[[1,21]]],[3,1,328.5,326.0,24,[[1,24]]],[3,2,332.2,333.1,24,[[1,24]]],[3,3,335.9,340.1,24,[[1,24]]],[3,4,339.6,347.2,24,[[1,24]]],[3,5,343.3,354.3,23,[[1,23]]],[3,6,347.1,361.4,23,[[1,23]]],[3,7,350.8,368.5,23,[[1,23]]],[3,8,354.5,375.6,23,[[1,23]]],[4,1,298.7,269.3,26,[[1,3]]],[4,2,302.4,276.4,26,[[1,3]]],[4,3,306.2,283.5,26,[[1,3]]],[4,4,309.9,290.6,26,[[1,3]]],[4,5,313.6,297.6,25,[[1,25]]],[4,6,317.3,304.7,25,[[1,25]]],[4,7,321.0,311.8,25,[[1,25]]],[4,8,324.7,318.9,25,[[1,25]]],[5,1,269.0,212.6,27,[[1,27]]],[5,2,272.7,219.7,27,[[1,27]]],[5,3,276.4,226.8,27,[[1,27]]],[5,4,280.1,233.9,27,[[1,27]]],[5,5,283.9,241.0,27,[[14,27]]],[5,6,287.6,248.1,26,[[14,26]]],[5,7,291.3,255.1,26,[[14,26]]],[5,8,295.0,262.2,26,[[14,26]]],[6,1,417.7,496.0,20,[]],[6,2,421.4,503.1,20,[]],[6,3,425.1,510.2,20,[]],[6,4,428.8,517.3,20,[]]],"step":[7.1332,-3.6237]}/*END*/;
+const EXPAND=F=>{const[a,b,c]=F.llInv;const[sx,sy]=F.step;F.P=[];for(const[s,l,x0,y0,n,rg]of F.L)for(let r=1;r<=n;r++)F.P.push([s,l,r,+(x0+(r-1)*sx).toFixed(1),+(y0+(r-1)*sy).toFixed(1),rg.some(([p,q])=>r>=p&&r<=q)?1:0]);F.palms=F.P.map(([s,l,r,x,y,pl])=>{const dx=x-c[0],dy=y-c[1];return{id:s+'-'+l+'-'+r,s,l,r,p:[x,y],pl,ll:[a[0]*dx+a[1]*dy,b[0]*dx+b[1]*dy]}});return F};EXPAND(F);
+const SECTOR_NAMES={1:'قطاع 1',2:'قطاع 2',3:'قطاع 3',4:'قطاع 4',5:'قطاع 5',6:'المنطقة الإضافية'};
+const BASE_VAR=Object.fromEntries(Object.entries(F.variety).map(([k,v])=>[+k,v]));
+const PALMS=F.palms; const BYID=new Map(PALMS.map(p=>[p.id,p]));
+const STATUS={
+healthy:{t:'سليمة',c:'#2F7A3E'},
+watch:{t:'تحت الملاحظة',c:'#C98A12'},
+sick:{t:'مصابة',c:'#B83A26'},
+dead:{t:'ميتة / محتاجة ترقيع',c:'#5B3A26'},
+empty:{t:'مكان فاضي',c:'#A39E92'}
+};
+const VARCOL={'صعيدي':'#B7791F','مجدول':'#6B3FA0','برحي':'#C2452D','سكري':'#D4A72C','سيوي':'#B7791F','زغلول':'#C2452D'};
+const AGECLS=[
+{k:'y0',t:'أقل من سنة',max:1,c:'#9FD18B'},
+{k:'y1',t:'من سنة لـ 3 سنين',max:3,c:'#4FA25C'},
+{k:'y3',t:'من 3 لـ 5 سنين',max:5,c:'#2B6E3A'},
+{k:'fr',t:'مثمر (أكتر من 5 سنين)',max:99,c:'#183F22'}
+];
+const LOGTYPES={
+inspect:{t:'فحص / معاينة',i:'🔍'}, fert:{t:'تسميد',i:'🧪'}, irr:{t:'ري',i:'💧'},
+spray:{t:'رش / مكافحة',i:'🛡️'}, weevil:{t:'سوسة النخيل',i:'🐞'}, prune:{t:'تقليم',i:'✂️'},
+plant:{t:'زراعة / ترقيع',i:'🌱'}, pollin:{t:'تلقيح',i:'🌼'}, harvest:{t:'حصاد',i:'🧺'},
+repair:{t:'صيانة شبكة الري',i:'🔧'}, note:{t:'ملاحظة',i:'📝'}
+};
+/* ---------- live state ---------- */
+const OV=new Map();          // palm overrides from db: id -> data
+let LOGS=[];                 // all logs from sheet
+let IRR={};                  // irrigation settings per sector
+let canWrite=true, me=null;
+const state={view:'map',color:'status',sector:'all',hidden:new Set(),sel:null};
+function info(p){
+const o=OV.get(p.id)||{};
+const planted = o.planted!=null ? !!o.planted : !!p.pl;
+let status = o.status || (planted?'healthy':'empty');
+if(!planted && status!=='dead') status='empty';
+const pd = o.plantedDate || (planted && p.pl ? F.plantedDate : null);
+const variety = o.variety || BASE_VAR[p.s] || 'غير محدد';
+let ageY=null; if(planted&&pd){ageY=(Date.now()-new Date(pd).getTime())/(365.25*864e5); if(ageY<0)ageY=0}
+const ac = ageY==null?null:AGECLS.find(a=>ageY<a.max);
+return {planted,status,pd,variety,ageY,ac,note:o.note||'',};
+}
+function ageText(y){ if(y==null)return '—'; const m=Math.floor(y*12); if(m<12)return m+' شهر'; const yy=Math.floor(m/12),mm=m%12; return yy+' سنة'+(mm?(' و'+mm+' شهر'):'');}
+function colorOf(p,i){
+if(state.color==='status')return STATUS[i.status].c;
+if(state.color==='variety')return i.planted?(VARCOL[i.variety]||'#7D7A70'):STATUS.empty.c;
+return i.ac?i.ac.c:STATUS.empty.c;
+}
+function catOf(i){ if(state.color==='status')return i.status; if(state.color==='variety')return i.planted?i.variety:'empty'; return i.ac?i.ac.k:'empty'; }
+/* ---------- map ---------- */
+const svg=$('#map'); const W=F.w,H=F.h;
+let vb={x:0,y:0,w:W,h:H};
+const gBase=sv('g'), gPalms=sv('g'), gTop=sv('g');
+svg.append(gBase,gPalms,gTop);
+gBase.append(sv('polygon',{points:F.boundary.map(p=>p.join(',')).join(' '),fill:'#F3EBD6',stroke:'#8A6A3B','stroke-width':1.6,'vector-effect':'non-scaling-stroke'}));
+for(const l of F.lines) gBase.append(sv('polyline',{points:l.map(p=>p.join(',')).join(' '),fill:'none',stroke:'#B9AD92','stroke-width':1.2,'vector-effect':'non-scaling-stroke'}));
+for(const l of F.rest) gBase.append(sv('polyline',{points:l.map(p=>p.join(',')).join(' '),fill:'none',stroke:'#6E4B33','stroke-width':1,'vector-effect':'non-scaling-stroke'}));
+for(const s of F.solar) gBase.append(sv('rect',{x:s[0]-3,y:s[1]-3,width:6,height:6,fill:'#3D5A80',rx:1}));
+gBase.append(sv('circle',{cx:F.well[0],cy:F.well[1],r:3,fill:'#2C7DA0',stroke:'#fff','stroke-width':1}));
+const labels=[];
+for(const t of F.texts){
+if(t.p[1]<0||/planted/.test(t.t))continue;
+if(/قطاع/.test(t.t))continue;const big=false;
+const tx=sv('text',{x:t.p[0],y:t.p[1],'font-size':big?14:8,'font-weight':big?700:500,fill:big?'#5B4A2C':'#4A4437','text-anchor':'middle','paint-order':'stroke',stroke:'#F3EBD6','stroke-width':3,style:'pointer-events:none'});
+tx.textContent=t.t; gTop.append(tx); labels.push(tx);
+}
+{const ux=180.4,uy=-91.65,un=Math.hypot(ux,uy);
+for(const s of [1,2,3,4,5,6]){const rr=s===6?20:1,sg=s===6?-1.6:1;const ps=PALMS.filter(p=>p.s===s&&p.r===rr);if(!ps.length)continue;const ax=ps.reduce((a,p)=>a+p.p[0],0)/ps.length,ay=ps.reduce((a,p)=>a+p.p[1],0)/ps.length;
+const tx=sv('text',{x:ax-sg*ux/un*22,y:ay-sg*uy/un*22+5,'font-size':13,'font-weight':700,fill:'#5B4A2C','text-anchor':'middle','paint-order':'stroke',stroke:'#F3EBD6','stroke-width':3,style:'pointer-events:none'});tx.textContent=s===6?'منطقة إضافية':'قطاع '+s;gTop.append(tx)}}
+// north arrow
+const na=sv('g',{transform:`translate(${W-30},40)`});na.append(sv('path',{d:'M0,-18 L7,8 L0,3 L-7,8 Z',fill:'#5B4A2C'}));const nt=sv('text',{y:24,'text-anchor':'middle','font-size':11,fill:'#5B4A2C','font-weight':700});nt.textContent='N';na.append(nt);gTop.append(na);
+const selRing=sv('circle',{r:5.5,fill:'none',stroke:'#111','stroke-width':2.2,'vector-effect':'non-scaling-stroke',visibility:'hidden',style:'pointer-events:none'});
+gTop.append(selRing);
+const DOTS=new Map();
+for(const p of PALMS){const c=sv('circle',{cx:p.p[0],cy:p.p[1],r:2.8});DOTS.set(p.id,c);gPalms.append(c)}
+function paintMap(){
+const cats=new Map();
+for(const p of PALMS){
+const i=info(p), c=DOTS.get(p.id), col=colorOf(p,i), cat=catOf(i);
+const inSec = state.sector==='all' || String(p.s)===state.sector;
+const vis = inSec && !state.hidden.has(cat);
+if(i.status==='empty'&&state.color==='status'){c.setAttribute('fill','#F3EBD6');c.setAttribute('stroke',col);c.setAttribute('stroke-width','1')}
+else {c.setAttribute('fill',col);c.setAttribute('stroke','none')}
+c.setAttribute('opacity',vis?1:.12);
+if(inSec){const k=cats.get(cat)||{n:0,c:col};k.n++;cats.set(cat,k)}
+}
+// legend
+const lg=$('#legend'); lg.innerHTML='';
+const names = state.color==='status'?Object.fromEntries(Object.entries(STATUS).map(([k,v])=>[k,v.t]))
+: state.color==='age'?Object.assign(Object.fromEntries(AGECLS.map(a=>[a.k,a.t])),{empty:'مكان فاضي'})
+: {empty:'مكان فاضي'};
+const order = state.color==='status'?Object.keys(STATUS):state.color==='age'?[...AGECLS.map(a=>a.k),'empty']:[...cats.keys()].sort((a,b)=>a==='empty'?1:b==='empty'?-1:0);
+for(const k of order){const v=cats.get(k); if(!v)continue;
+const d=el('div',{class:state.hidden.has(k)?'off':'',onclick:()=>{state.hidden.has(k)?state.hidden.delete(k):state.hidden.add(k);paintMap()}},
+el('span',{class:'dot',style:`background:${v.c}`}), (names[k]||k)+' ', el('b',{},v.n.toLocaleString('en-US')));
+lg.append(d)}
+}
+function setVB(){svg.setAttribute('viewBox',`${vb.x} ${vb.y} ${vb.w} ${vb.h}`)}
+function fit(){const r=svg.getBoundingClientRect();const ar=r.width/r.height||1;let w=W,h=H;if(w/h<ar)w=h*ar;else h=w/ar;vb={x:(W-w)/2,y:(H-h)/2,w,h};setVB()}
+function zoomAt(f,cx,cy){const nw=Math.min(Math.max(vb.w*f,25),W*3);const k=nw/vb.w;vb.x=cx-(cx-vb.x)*k;vb.y=cy-(cy-vb.y)*k;vb.w=nw;vb.h*=k;setVB()}
+function toSvg(x,y){const pt=svg.createSVGPoint();pt.x=x;pt.y=y;return pt.matrixTransform(svg.getScreenCTM().inverse())}
+function center(){return{x:vb.x+vb.w/2,y:vb.y+vb.h/2}}
+$('#zin').onclick=()=>{const c=center();zoomAt(.6,c.x,c.y)};
+$('#zout').onclick=()=>{const c=center();zoomAt(1/.6,c.x,c.y)};
+$('#zfit').onclick=fit;
+svg.addEventListener('wheel',e=>{e.preventDefault();const p=toSvg(e.clientX,e.clientY);zoomAt(e.deltaY>0?1.15:1/1.15,p.x,p.y)},{passive:false});
+const ptrs=new Map(); let moved=0, pinch0=null, down0=null;
+svg.addEventListener('pointerdown',e=>{svg.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});moved=0;down0={x:e.clientX,y:e.clientY};
+if(ptrs.size===2){const[a,b]=[...ptrs.values()];pinch0={d:Math.hypot(a.x-b.x,a.y-b.y),w:vb.w}}});
+svg.addEventListener('pointermove',e=>{if(!ptrs.has(e.pointerId))return;const prev=ptrs.get(e.pointerId);const cur={x:e.clientX,y:e.clientY};ptrs.set(e.pointerId,cur);
+if(down0)moved=Math.max(moved,Math.hypot(cur.x-down0.x,cur.y-down0.y));
+const r=svg.getBoundingClientRect(); const s=vb.w/r.width;
+if(ptrs.size===1){vb.x-=(cur.x-prev.x)*s;vb.y-=(cur.y-prev.y)*s;setVB()}
+else if(ptrs.size===2&&pinch0){const[a,b]=[...ptrs.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);const m=toSvg((a.x+b.x)/2,(a.y+b.y)/2);zoomAt((pinch0.w*pinch0.d/d)/vb.w,m.x,m.y);moved=99}});
+const up=e=>{const wasTap=ptrs.size===1&&moved<8;ptrs.delete(e.pointerId);if(ptrs.size<2)pinch0=null;
+if(wasTap){const p=toSvg(e.clientX,e.clientY);const r=svg.getBoundingClientRect();const tol=Math.max(5,18*vb.w/r.width);let best=null,bd=tol;
+for(const q of PALMS){if(state.sector!=='all'&&String(q.s)!==state.sector)continue;const d=Math.hypot(q.p[0]-p.x,q.p[1]-p.y);if(d<bd){bd=d;best=q}}
+if(best)openPalm(best.id)}};
+svg.addEventListener('pointerup',up);svg.addEventListener('pointercancel',e=>{ptrs.delete(e.pointerId);pinch0=null});
+function focusPalm(id){const p=BYID.get(id);if(!p)return;const w=90,r=svg.getBoundingClientRect(),h=w*r.height/r.width;vb={x:p.p[0]-w/2,y:p.p[1]-h/2,w,h};setVB()}
+function selectDot(id){const p=id&&BYID.get(id);if(!p){selRing.setAttribute('visibility','hidden');return}selRing.setAttribute('cx',p.p[0]);selRing.setAttribute('cy',p.p[1]);selRing.setAttribute('visibility','visible')}
+$('#colorMode').onchange=e=>{state.color=e.target.value;state.hidden.clear();paintMap()};
+const sf=$('#sectorFilter');sf.append(el('option',{value:'all'},'كل القطاعات'));for(const s of [1,2,3,4,5,6])sf.append(el('option',{value:s},SECTOR_NAMES[s]+(BASE_VAR[s]?(' — '+BASE_VAR[s]):'')));
+sf.onchange=e=>{state.sector=e.target.value;paintMap()};
+function findCode(){const v=$('#findIn').value.trim().replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[\s\/\.،,_]+/g,'-');
+if(BYID.has(v)){showView('map');focusPalm(v);openPalm(v)}else toast('مفيش نخلة بالكود ده — اكتبه كده: قطاع-خط-رقم')}
+$('#findBtn').onclick=findCode;$('#findIn').addEventListener('keydown',e=>{if(e.key==='Enter')findCode()});
+/* ---------- views ---------- */
+function showView(v){state.view=v;document.querySelectorAll('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+if(v==='map'){requestAnimationFrame(()=>{if(!showView._fit){fit();showView._fit=1}})}
+render()}
+$('#tabs').onclick=e=>{const b=e.target.closest('button');if(b)showView(b.dataset.v)};
+function render(){paintMap();if(state.view==='sum')renderSum();if(state.view==='log')renderLog();if(state.view==='fert')renderFert();if(state.view==='irr')renderIrr();if(state.sel&&$('#sheet').classList.contains('on')&&state.sel.startsWith('p:'))renderPalm(state.sel.slice(2))}
+function counts(){const by={};for(const s of [1,2,3,4,5,6])by[s]={pos:0,pl:0,empty:0,healthy:0,watch:0,sick:0,dead:0};
+for(const p of PALMS){const i=info(p),b=by[p.s];b.pos++;if(i.planted)b.pl++;b[i.status]++}
+const t={pos:0,pl:0,empty:0,healthy:0,watch:0,sick:0,dead:0};for(const b of Object.values(by))for(const k in t)t[k]+=b[k];return{by,t}}
+function renderSum(){
+const v=$('#v-sum');const {by,t}=counts();const fed=F.areaM2/4200.83;
+v.innerHTML='';
+const k=(n,l,c)=>el('div',{class:'kpi'},el('b',{style:c?`color:${c}`:''},n.toLocaleString('en-US')),el('span',{},l));
+v.append(el('div',{class:'kpis',style:'margin-bottom:12px'},k(t.pl,'نخلة مزروعة'),k(t.empty,'مكان فاضي',STATUS.empty.c),k(t.healthy,'سليمة',STATUS.healthy.c),k(t.watch,'تحت الملاحظة',STATUS.watch.c),k(t.sick,'مصابة',STATUS.sick.c),k(Math.round(fed*10)/10,'فدان (مساحة الأرض)')));
+const tb=el('table');tb.innerHTML=`<tr><th>القطاع</th><th>الصنف</th><th class="n">أماكن</th><th class="n">مزروع</th><th class="n">فاضي</th><th class="n">ملاحظة</th><th class="n">مصابة</th></tr>`;
+for(const s of [1,2,3,4,5,6]){const b=by[s];const tr=el('tr',{style:'cursor:pointer',onclick:()=>{state.sector=String(s);sf.value=s;showView('map')}});
+tr.innerHTML=`<td>${SECTOR_NAMES[s]}</td><td>${esc(BASE_VAR[s]||'—')}</td><td class="n">${b.pos}</td><td class="n">${b.pl}</td><td class="n">${b.empty}</td><td class="n">${b.watch}</td><td class="n">${b.sick+b.dead}</td>`;tb.append(tr)}
+const tr=el('tr');tr.innerHTML=`<td><b>الإجمالي</b></td><td></td><td class="n"><b>${t.pos}</b></td><td class="n"><b>${t.pl}</b></td><td class="n"><b>${t.empty}</b></td><td class="n"><b>${t.watch}</b></td><td class="n"><b>${t.sick+t.dead}</b></td>`;tb.append(tr);
+v.append(el('div',{class:'card'},el('h2',{},'النخل حسب القطاع'),tb,el('p',{class:'muted'},'دوس على أي قطاع عشان تشوفه على الخريطة.')));
+// attention list
+const att=PALMS.map(p=>[p,info(p)]).filter(([p,i])=>['watch','sick','dead'].includes(i.status));
+const ac=el('div',{class:'card'},el('h2',{},'نخل محتاج متابعة'));
+if(!att.length)ac.append(el('p',{class:'muted'},'مفيش نخل متعلّم عليه إنه تحت الملاحظة أو مصاب. لما تغيّر حالة نخلة من الخريطة هتظهر هنا.'));
+else{const ch=el('div',{class:'chips'});for(const[p,i]of att)ch.append(el('button',{class:'chip',onclick:()=>{showView('map');focusPalm(p.id);openPalm(p.id)}},el('span',{class:'dot',style:`background:${STATUS[i.status].c}`}),el('span',{dir:'ltr'},p.id)));ac.append(ch)}
+v.append(ac);
+// this month
+const m=new Date().getMonth()+1;
+v.append(el('div',{class:'card'},el('h2',{},'شغل الشهر ده — '+MONTHS[m-1]),fertMonthBlock(m,true),el('button',{class:'btn ghost small',style:'margin-top:8px',onclick:()=>showView('fert')},'برنامج السماد كامل')));
+v.append(el('div',{class:'card'},el('h2',{},'معلومات الأرض'),
+el('div',{class:'facts'},
+fact('المساحة',Math.round(F.areaM2).toLocaleString('en-US')+' م² ('+fmt(fed)+' فدان)'),
+fact('تاريخ الزراعة',F.plantedDate.split('-').reverse().join('/')),
+fact('مسافات الزراعة','8 × 8 متر'),
+fact('المكان','الواحات — 28.25° شمال، 28.86° شرق')),
+el('p',{class:'muted'},'ترقيم النخلة: قطاع-خط-رقم. الخط 1 هو أقرب خط للشمال في كل قطاع، والرقم 1 من ناحية الطريق الداخلي (الغرب) زي ترتيب ملف الإكسيل.')));
+}
+function fact(a,b){return el('div',{class:'fact'},el('span',{},a),el('b',{},b))}
+/* ---------- fertilizer program ---------- */
+const MONTHS=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+// per palm per year (kg) by age class
+const FERT={
+y0:{org:10,sp:.5,an:.5,ks:.25},
+y1:{org:20,sp:1,an:1,ks:.5},
+y3:{org:30,sp:1.5,an:2,ks:1},
+fr:{org:50,sp:2,an:3,ks:2}
+};
+const MATS={
+org:{t:'سماد بلدي متحلل (عضوي)',split:{12:1},how:'في خندق على بعد 50–100 سم من جذع النخلة ويتردم ويتروى'},
+sp:{t:'سوبر فوسفات 15%',split:{12:1},how:'يتخلط مع السماد البلدي في نفس الخندق'},
+an:{t:'سلفات نشادر 20.6%',split:{2:.125,3:.125,4:.125,5:.125,6:.125,7:.125,8:.125,9:.125},how:'على دفعات مع مية الري (تسميد بالري) أو تكبيش حوالين النخلة وبعدها ري'},
+ks:{t:'سلفات بوتاسيوم 48%',split:{3:1/6,4:1/6,5:1/6,6:1/6,7:1/6,8:1/6},how:'مع مية الري على دفعات'}
+};
+const EXTRA={ // month -> list of {t, who:'all'|'fr'|'young'}
+1:[{t:'تقليم السعف الجاف والمكسور وتنضيف قلب النخلة',who:'all'}],
+2:[{t:'تلقيح الطلع أول ما يتفتح',who:'fr'},{t:'رشة عناصر صغرى مخلبية (حديد وزنك ومنجنيز) حسب جرعة العبوة',who:'all'}],
+3:[{t:'تكملة التلقيح',who:'fr'},{t:'فحص سوسة النخيل الحمراء (أكتر شهور نشاطها من هنا لحد يونيو)',who:'all'}],
+4:[{t:'خف الثمار وتقويس العراجين',who:'fr'},{t:'زيادة عدد الريات مع بداية الحر',who:'all'}],
+5:[{t:'تكملة الخف والتقويس',who:'fr'},{t:'حماية الفسائل الصغيرة من الشمس والرياح (تغطية بالسعف أو الخيش)',who:'young'}],
+6:[{t:'أعلى احتياج للمية — راجع جدول الري وتأكد من النقاطات',who:'all'}],
+7:[{t:'تكييس السباطات بالشبك ضد الطيور والحشرات',who:'fr'}],
+8:[{t:'حصاد المجدول (أغسطس–سبتمبر)',who:'fr'}],
+9:[{t:'آخر دفعة نيتروجين — ما تسمّدش نيتروجين بعد سبتمبر',who:'all'},{t:'رشة عناصر صغرى تانية',who:'all'}],
+10:[{t:'حصاد الصعيدي (أكتوبر–نوفمبر)',who:'fr'},{t:'إزالة الفسائل الزيادة وزراعتها في الأماكن الفاضية (ترقيع)',who:'all'}],
+11:[{t:'تقليل الري تدريجياً مع البرد',who:'all'},{t:'ترقيع الأماكن الفاضية بفسائل جديدة',who:'all'}],
+12:[{t:'تنضيف الحشائش حوالين الأحواض قبل التسميد الشتوي',who:'all'}]
+};
+function classCounts(){const c={y0:0,y1:0,y3:0,fr:0,none:0};for(const p of PALMS){const i=info(p);if(!i.planted||i.status==='dead')continue;if(i.ac)c[i.ac.k]++;else c.none++}return c}
+function kg(x){return x>=1?fmt(x)+' كجم':Math.round(x*1000).toLocaleString('en-US')+' جم'}
+function fertMonthBlock(m,compact){
+const cc=classCounts(); const box=el('div');
+let any=false;
+for(const a of AGECLS){const n=cc[a.k];if(!n)continue;
+const rows=[];
+for(const[k,mt]of Object.entries(MATS)){const f=mt.split[m];if(!f)continue;const per=FERT[a.k][k]*f;rows.push({t:mt.t,per,tot:per*n,how:mt.how})}
+const ex=(EXTRA[m]||[]).filter(x=>x.who==='all'||(x.who==='fr'&&a.k==='fr')||(x.who==='young'&&(a.k==='y0'||a.k==='y1')));
+if(!rows.length&&!ex.length)continue; any=true;
+box.append(el('h3',{},a.t+' — '+n.toLocaleString('en-US')+' نخلة'));
+for(const r of rows)box.append(el('div',{class:'task'},el('div',{},el('div',{},r.t),compact?null:el('div',{class:'muted'},r.how)),el('div',{class:'q'},kg(r.per)+' / نخلة',el('small',{},'إجمالي '+kg(r.tot)))));
+for(const x of ex)box.append(el('div',{class:'task'},el('div',{},'• '+x.t)));
+}
+if(!any)box.append(el('p',{class:'muted'},'مفيش تسميد أرضي الشهر ده — ركّز على المتابعة والري.'));
+return box;
+}
+let fertMonth=new Date().getMonth()+1;
+function renderFert(){
+const v=$('#v-fert');v.innerHTML='';
+const mt=el('div',{class:'month-tabs'});MONTHS.forEach((n,i)=>mt.append(el('button',{class:fertMonth===i+1?'on':'',onclick:()=>{fertMonth=i+1;renderFert()}},n)));
+v.append(el('div',{class:'card'},el('h2',{},'برنامج التسميد المقترح'),mt,el('div',{style:'margin-top:8px'},fertMonthBlock(fertMonth,false))));
+// yearly table
+const tb=el('table');tb.innerHTML='<tr><th>السن</th><th class="n">بلدي</th><th class="n">سوبر فوسفات</th><th class="n">سلفات نشادر</th><th class="n">سلفات بوتاسيوم</th></tr>';
+for(const a of AGECLS){const f=FERT[a.k];const tr=el('tr');tr.innerHTML=`<td>${a.t}</td><td class="n">${f.org} كجم</td><td class="n">${kg(f.sp)}</td><td class="n">${kg(f.an)}</td><td class="n">${kg(f.ks)}</td>`;tb.append(tr)}
+v.append(el('div',{class:'card'},el('h2',{},'الكميات في السنة لكل نخلة'),tb,
+el('h3',{},'مواعيد الإضافة'),
+el('div',{class:'muted',style:'line-height:1.8'},'البلدي والسوبر فوسفات: مرة واحدة في ديسمبر. سلفات النشادر: 8 دفعات متساوية من فبراير لسبتمبر. سلفات البوتاسيوم: 6 دفعات من مارس لأغسطس. العناصر الصغرى: رشة في فبراير ورشة في سبتمبر.')));
+requestAnimationFrame(()=>{const o=mt.querySelector('.on');if(o)mt.scrollLeft+=o.getBoundingClientRect().left-mt.getBoundingClientRect().left-mt.clientWidth/2+o.offsetWidth/2});
+v.append(el('div',{class:'note'},'البرنامج ده استرشادي ومبني على الممارسات المنتشرة لنخيل الأراضي الرملية بالري بالتنقيط. قبل ما تعتمده اعمل تحليل تربة ومية البير وراجعه مع مهندس زراعي أو الإدارة الزراعية في الواحات، لأن ملوحة المية ونوع التربة بيغيّروا الكميات. عمر النخلة بيتحسب أوتوماتيك من تاريخ الزراعة، والكميات بتتحسب على النخل المزروع والسليم بس.'));
+}
+/* ---------- irrigation ---------- */
+const IRRSYS=['تنقيط','فقاعات (ببلر)','غمر / أحواض','أخرى'];
+function irrCalc(s,c){const n=counts().by[s].pl;const lpe=(+c.em||0)*(+c.flow||0)*((+c.min||0)/60);const wk=lpe*(+c.perWeek||0);return{lpe,wk,secWk:wk*n/1000,n}}
+function renderIrr(){
+const v=$('#v-irr');v.innerHTML='';
+v.append(el('div',{class:'card'},el('h2',{},'مصدر المية والطاقة'),el('div',{class:'facts'},fact('مصدر المية','بير ارتوازي (البير)'),fact('الطاقة','طاقة شمسية — 5 ألواح/مجموعات على الرسم')),
+el('p',{class:'muted'},'نظام الري مش مرسوم في ملف الأوتوكاد، فكمّل بيانات كل قطاع تحت. التطبيق هيحسب كمية المية لكل نخلة ولكل قطاع.')));
+for(const s of [1,2,3,4,5,6]){
+const c=Object.assign({sys:'',em:'',flow:'',min:'',perWeek:'',valve:'',note:''},IRR[s]||{});
+const r=irrCalc(s,c);
+const card=el('div',{class:'card'});
+card.append(el('div',{class:'row'},el('h2',{style:'margin:0;flex:1'},SECTOR_NAMES[s]+(BASE_VAR[s]?' — '+BASE_VAR[s]:'')),el('span',{class:'pill'},r.n+' نخلة مزروعة')));
+const sel=el('select',{class:'f-in'});sel.append(el('option',{value:''},'— اختار —'));for(const x of IRRSYS){const o=el('option',{value:x},x);if(c.sys===x)o.selected=true;sel.append(o)}
+const inp=(k,ph)=>el('input',{class:'f-in',type:'number',inputmode:'decimal',min:0,value:c[k]??'',placeholder:ph});
+const em=inp('em','مثلاً 4'),flow=inp('flow','مثلاً 8'),mn=inp('min','مثلاً 60'),pw=inp('perWeek','مثلاً 3');
+const valve=el('input',{class:'f-in',value:c.valve||'',placeholder:'رقم المحبس أو الخط الرئيسي'});
+const note=el('textarea',{class:'f-in',placeholder:'ملاحظات (مواعيد، أعطال، فلاتر…)'});note.value=c.note||'';
+card.append(el('div',{class:'grid2'},
+el('div',{},el('label',{class:'f'},'نظام الري'),sel),el('div',{},el('label',{class:'f'},'المحبس'),valve),
+el('div',{},el('label',{class:'f'},'عدد النقاطات لكل نخلة'),em),el('div',{},el('label',{class:'f'},'تصرف النقاط (لتر/ساعة)'),flow),
+el('div',{},el('label',{class:'f'},'مدة الرية (دقيقة)'),mn),el('div',{},el('label',{class:'f'},'عدد الريات في الأسبوع'),pw)),
+el('label',{class:'f'},'ملاحظات'),note);
+card.append(el('div',{class:'facts'},fact('لتر لكل نخلة في الرية',r.lpe?fmt(r.lpe):'—'),fact('م³ للقطاع في الأسبوع',r.secWk?fmt(r.secWk):'—')));
+card.append(el('button',{class:'btn small',onclick:async()=>{
+const nc={sys:sel.value,em:em.value,flow:flow.value,min:mn.value,perWeek:pw.value,valve:valve.value.trim(),note:note.value.trim()};
+await saveIrr(s,nc); }},'حفظ بيانات القطاع'));
+v.append(card);
+}
+}
+/* ---------- logs ---------- */
+let logFilter='all';
+function allLogs(){return [...LOGS].sort((a,b)=>(b.d||'').localeCompare(a.d||'')||String(b.at||'').localeCompare(String(a.at||'')))}
+function logItem(l,opt={}){
+const lt=LOGTYPES[l.type]||LOGTYPES.note;
+const where=l.scope==='palm'?('نخلة '+C(l.palmId)):l.scope==='sector'?SECTOR_NAMES[l.sector]:'المزرعة كلها';
+const bd=el('div',{class:'bd'},el('div',{class:'t'},lt.t+(opt.noWhere?'':' — '+where)),el('div',{class:'m'},(l.d||'').split('-').reverse().join('/')+(l.by?(' • '+l.by):'')+(l.qty?(' • '+l.qty):'')+(l.pending?' • ⏳ مستني النت':'')));
+if(l.text)bd.append(el('div',{class:'tx'},l.text));
+if(l.photo)bd.append(el('img',{src:l.photo,alt:'صورة',loading:'lazy'}));
+const row=el('div',{class:'li'},el('div',{class:'ic'},lt.i),bd);
+if(l.scope==='palm'&&!opt.noWhere)row.style.cursor='pointer',row.onclick=e=>{if(e.target.closest('.del'))return;showView('map');focusPalm(l.palmId);openPalm(l.palmId)};
+if(canWrite&&opt.del)row.append(el('button',{class:'del',onclick:opt.del},'مسح'));
+return row;
+}
+function renderLog(){
+const v=$('#v-log');v.innerHTML='';
+v.append(el('div',{class:'row',style:'margin-bottom:10px'},el('button',{class:'btn',onclick:()=>openLogForm({})},'+ تسجيل متابعة')));
+const ch=el('div',{class:'chips',style:'margin-bottom:10px'});
+ch.append(el('button',{class:'chip'+(logFilter==='all'?' on':''),onclick:()=>{logFilter='all';renderLog()}},'الكل'));
+for(const[k,t]of Object.entries(LOGTYPES))ch.append(el('button',{class:'chip'+(logFilter===k?' on':''),onclick:()=>{logFilter=k;renderLog()}},t.i+' '+t.t));
+v.append(ch);
+const L=allLogs().filter(l=>logFilter==='all'||l.type===logFilter);
+const box=el('div',{class:'card loglist'});
+if(!L.length)box.append(el('p',{class:'muted'},'لسه مفيش تسجيلات. سجّل أي شغل اتعمل في الأرض (فحص، ري، تسميد، رش…) لنخلة واحدة أو لقطاع أو للمزرعة كلها.'));
+for(const l of L.slice(0,300))box.append(logItem(l,{del:()=>deleteLog(l)}));
+v.append(box);
+}
+/* ---------- palm sheet ---------- */
+function openSheet(){$('#sheet').classList.add('on');$('#scrim').classList.add('on')}
+function closeSheet(){$('#sheet').classList.remove('on');$('#scrim').classList.remove('on');state.sel=null;selectDot(null)}
+$('#scrim').onclick=closeSheet;
+function openPalm(id){state.sel='p:'+id;selectDot(id);renderPalm(id);openSheet()}
+function renderPalm(id){
+const p=BYID.get(id),i=info(p);const b=$('#sheetBody');b.innerHTML='';
+b.append(el('div',{class:'ph'},el('span',{class:'dot',style:`width:16px;height:16px;background:${STATUS[i.status].c}`}),el('span',{class:'code',dir:'ltr'},id),el('span',{class:'pill'},STATUS[i.status].t),el('button',{class:'x',onclick:closeSheet,'aria-label':'قفل'},'×')));
+const irr=IRR[p.s]||{};
+b.append(el('div',{class:'facts'},
+fact('القطاع',SECTOR_NAMES[p.s]),fact('الخط / الرقم','خط '+p.l+' — نخلة '+p.r),
+fact('الصنف',i.planted?i.variety:'—'),fact('العمر',i.planted?ageText(i.ageY):'لسه ما اتزرعتش'),
+fact('تاريخ الزراعة',i.pd?i.pd.split('-').reverse().join('/'):'—'),fact('الري',irr.sys?(irr.sys+(irr.em?(' • '+irr.em+' نقاط'):'')):'لسه ما اتحددش'),
+fact('الإحداثيات',C(p.ll[0].toFixed(6)+', '+p.ll[1].toFixed(6))),
+el('a',{class:'fact',href:'https:'+'/'+'/www.google.com/maps/search/?api=1&query='+p.ll[0]+','+p.ll[1],target:'_blank',rel:'noopener',style:'text-decoration:none;color:var(--accent)'},el('span',{},'الموقع'),el('b',{},'افتح في خرائط جوجل ↗'))));
+if(canWrite){
+if(i.planted){
+b.append(el('h3',{style:'font-size:13px;color:var(--muted);margin:6px 0'},'غيّر الحالة'));
+const ch=el('div',{class:'chips'});for(const k of ['healthy','watch','sick','dead'])ch.append(el('button',{class:'chip'+(i.status===k?' on':''),onclick:()=>savePalm(id,{status:k},{type:'inspect',text:'الحالة اتغيرت إلى: '+STATUS[k].t})},el('span',{class:'dot',style:`background:${STATUS[k].c}`}),STATUS[k].t));
+b.append(ch);
+}
+const acts=el('div',{class:'row',style:'margin-top:12px'});
+acts.append(el('button',{class:'btn small',onclick:()=>openLogForm({scope:'palm',palmId:id})},'+ تسجيل متابعة'));
+if(!i.planted||i.status==='dead')acts.append(el('button',{class:'btn ghost small',onclick:()=>openPlantForm(id)},'🌱 اتزرعت / ترقيع'));
+acts.append(el('button',{class:'btn ghost small',onclick:()=>openPalmEdit(id)},'تعديل البيانات'));
+b.append(acts);
+}
+if(i.note)b.append(el('div',{class:'note',style:'margin-top:12px'},i.note));
+const lg=el('div',{class:'loglist',style:'margin-top:10px'});
+const L=allLogs().filter(l=>l.scope==='palm'&&l.palmId===id);
+b.append(el('h3',{style:'font-size:14px;margin:14px 0 4px'},'سجل النخلة'));
+if(!L.length)lg.append(el('p',{class:'muted'},'مفيش تسجيلات للنخلة دي لسه.'));
+for(const l of L)lg.append(logItem(Object.assign({},l,{scope:'palm',palmId:id}),{noWhere:true,del:()=>deleteLog(Object.assign({},l,{scope:'palm',palmId:id}))}));
+// sector-level logs touching this palm
+const sl=allLogs().filter(l=>l.scope==='farm'||(l.scope==='sector'&&+l.sector===p.s)).slice(0,5);
+b.append(lg);
+if(sl.length){b.append(el('h3',{style:'font-size:14px;margin:14px 0 4px'},'آخر شغل على القطاع / المزرعة'));const s2=el('div',{class:'loglist'});for(const l of sl)s2.append(logItem(l));b.append(s2)}
+}
+function formShell(title,body,onSave,saveText='حفظ'){
+const b=$('#sheetBody');b.innerHTML='';
+const btn=el('button',{class:'btn',style:'flex:1'},saveText);
+b.append(el('div',{class:'ph'},el('b',{style:'font-size:17px'},title),el('button',{class:'x',onclick:closeSheet},'×')),body,el('div',{class:'row',style:'margin-top:14px'},btn));
+btn.onclick=async()=>{btn.disabled=true;try{await onSave()}finally{btn.disabled=false}};
+openSheet();
+}
+function openPalmEdit(id){
+const p=BYID.get(id),i=info(p);state.sel='e:'+id;
+const vr=el('input',{class:'f-in',value:i.variety==='غير محدد'?'':i.variety,list:'varlist'});
+const dl=el('datalist',{id:'varlist'});for(const x of ['صعيدي','مجدول','برحي','سكري','سيوي','زغلول','سماني'])dl.append(el('option',{value:x}));
+const pd=el('input',{class:'f-in',type:'date',value:i.pd||''});
+const nt=el('textarea',{class:'f-in'});nt.value=i.note;
+formShell('بيانات النخلة '+C(id),el('div',{},el('label',{class:'f'},'الصنف'),vr,dl,el('label',{class:'f'},'تاريخ الزراعة'),pd,el('label',{class:'f'},'ملاحظة ثابتة على النخلة'),nt),
+async()=>{const ch={note:nt.value.trim()};if(vr.value.trim())ch.variety=vr.value.trim();if(i.planted&&pd.value)ch.plantedDate=pd.value;await savePalm(id,ch);openPalm(id)});
+}
+function openPlantForm(id){
+const p=BYID.get(id),i=info(p);state.sel='e:'+id;
+const pd=el('input',{class:'f-in',type:'date',value:today()});
+const vr=el('input',{class:'f-in',value:i.variety==='غير محدد'?'':i.variety});
+formShell('زراعة نخلة في '+C(id),el('div',{},el('label',{class:'f'},'تاريخ الزراعة'),pd,el('label',{class:'f'},'الصنف'),vr,el('p',{class:'muted'},'هتتسجل النخلة إنها مزروعة وسليمة، وعمرها هيتحسب من التاريخ ده.')),
+async()=>{const ch={planted:true,status:'healthy',plantedDate:pd.value||today()};if(vr.value.trim())ch.variety=vr.value.trim();await savePalm(id,ch,{type:'plant',d:ch.plantedDate,text:'اتزرعت فسيلة'+(ch.variety?(' '+ch.variety):'')});openPalm(id)},'سجّل الزراعة');
+}
+function openLogForm(pre){
+state.sel='l:';
+const scope=el('select',{class:'f-in'});[['palm','نخلة واحدة'],['sector','قطاع كامل'],['farm','المزرعة كلها']].forEach(([k,t])=>scope.append(el('option',{value:k},t)));scope.value=pre.scope||'sector';
+const sec=el('select',{class:'f-in'});for(const s of [1,2,3,4,5,6])sec.append(el('option',{value:s},SECTOR_NAMES[s]));
+const pid=el('input',{class:'f-in',value:pre.palmId||'',placeholder:'مثال 3-2-15',style:'direction:ltr;text-align:right'});
+const typ=el('select',{class:'f-in'});for(const[k,t]of Object.entries(LOGTYPES))typ.append(el('option',{value:k},t.i+' '+t.t));typ.value=pre.type||'inspect';
+const d=el('input',{class:'f-in',type:'date',value:today()});
+const qty=el('input',{class:'f-in',placeholder:'مثلاً: 250 جم سلفات نشادر / نخلة'});
+const tx=el('textarea',{class:'f-in',placeholder:'اكتب اللي اتعمل أو اللي لاحظته…'});
+const ph=el('input',{class:'f-in',type:'file',accept:'image/'+'*'});
+const wPalm=el('div',{},el('label',{class:'f'},'كود النخلة'),pid), wSec=el('div',{},el('label',{class:'f'},'القطاع'),sec);
+const sync=()=>{wPalm.style.display=scope.value==='palm'?'':'none';wSec.style.display=scope.value==='sector'?'':'none'};scope.onchange=sync;sync();
+const photoWrap=el('div',{},el('label',{class:'f'},'صورة (اختياري)'),ph);
+formShell('تسجيل متابعة',el('div',{},el('div',{class:'grid2'},el('div',{},el('label',{class:'f'},'على'),scope),el('div',{},el('label',{class:'f'},'التاريخ'),d)),wPalm,wSec,
+el('label',{class:'f'},'نوع الشغل'),typ,el('label',{class:'f'},'الكمية / المادة (اختياري)'),qty,el('label',{class:'f'},'التفاصيل'),tx,photoWrap),
+async()=>{
+const sc=scope.value;let id=null;
+if(sc==='palm'){id=pid.value.trim().replace(/[٠-٩]/g,x=>'٠١٢٣٤٥٦٧٨٩'.indexOf(x)).replace(/[\s\/\.،,_]+/g,'-');if(!BYID.has(id)){toast('كود النخلة مش صحيح');return}}
+let b64=null;if(ph.files[0]){try{b64=await photoB64(ph.files[0])}catch(e){toast('الصورة ما اتقرتش، هيتحفظ التسجيل من غيرها')}}
+const entry={type:typ.value,d:d.value||today(),text:tx.value.trim(),qty:qty.value.trim(),scope:sc,palmId:id||'',sector:sc==='sector'?+sec.value:(sc==='palm'?+id.split('-')[0]:'')};
+const ok=await addLog(entry,b64);if(!ok)return;
+if(sc==='palm')openPalm(id);else closeSheet()
+});
+}
+/* ---------- persistence: Google Sheet API + offline queue ---------- */
+const API='https://script.google.com/macros/s/AKfycbzE-0pmmZU6ZN2q4pJy0uSm8hRXm2cxZHQxFUwkt8yDNFT3zKDy0xVHg4hC3LF-qnv78w/exec';
+const LS={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v);return true}catch(e){return false}}};
+let PINV=LS.get('wf_pin')||''; me=LS.get('wf_name')||'';
+let QUEUE=[];try{QUEUE=JSON.parse(LS.get('wf_queue')||'[]')}catch(e){QUEUE=[]}
+const saveQueue=()=>LS.set('wf_queue',JSON.stringify(QUEUE));
+const QUEUED={queued:true};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+class NetErr extends Error{}
+async function api(a,args){
+let r;
+try{
+if(a==='getAll')r=await fetch(API+'?a=getAll&t='+Date.now(),{cache:'no-store'});
+else r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({a,pin:PINV,args})});
+}catch(e){throw new NetErr('net')}
+if(!r.ok)throw new NetErr('http '+r.status);
+let j;try{j=await r.json()}catch(e){throw new NetErr('bad json')}
+if(!j.ok)throw new Error(j.error||'error');
+return j.data;
+}
+function askText(title,hint,val,type){return new Promise(res=>{
+const inp=el('input',{class:'f-in',value:val||'',type:type||'text',inputmode:type==='password'?'numeric':'text'});
+let done=false;const fin=v=>{if(done)return;done=true;res(v)};
+formShell(title,el('div',{},el('p',{class:'muted'},hint),inp),async()=>{const v=inp.value.trim();if(!v){toast('اكتب الأول');return}closeSheet();fin(v)},'تمام');
+const x=$('#sheetBody .x');if(x)x.addEventListener('click',()=>fin(null));
+setTimeout(()=>inp.focus(),250)})}
+const askPin=()=>askText('الرقم السري','الرقم السري ده بيديهولك صاحب الأرض عشان تقدر تسجّل.','', 'password');
+async function ensureName(){if(me)return true;const n=await askText('اسمك ايه؟','الاسم بيتكتب جنب كل تسجيل عشان يتعرف مين عمل ايه.','');if(!n)return false;me=n;LS.set('wf_name',n);$('#whoName').textContent=n;return 'asked'}
+async function send(a,args){
+try{return await api(a,args)}
+catch(e){
+if(e instanceof NetErr){QUEUE.push({a,args});if(!saveQueue()){QUEUE.pop();throw new Error('مساحة الموبايل مش كفاية للحفظ أوفلاين — جرّب من غير صورة')}updateStatus();return QUEUED}
+if(/PIN/.test(e.message)){const p=await askPin();if(p==null)throw e;PINV=p;LS.set('wf_pin',p);return send(a,args)}
+throw e}}
+let flushing=false;
+async function flushQueue(){
+if(flushing||!QUEUE.length)return;flushing=true;let sent=0;
+try{while(QUEUE.length){const it=QUEUE[0];
+try{await api(it.a,it.args)}
+catch(e){if(e instanceof NetErr)break;
+if(/PIN/.test(e.message)){const p=await askPin();if(p==null)break;PINV=p;LS.set('wf_pin',p);continue}
+toast('تسجيل ما اتقبلش واتشال: '+e.message)}
+QUEUE.shift();saveQueue();sent++}}
+finally{flushing=false;updateStatus()}
+if(sent){toast('اتبعت '+sent+' تسجيل كان مستني ✓');refresh()}
+}
+function applyQueued(){for(const it of QUEUE){
+if(it.a==='savePalm'){const[id,ch,log]=it.args;OV.set(id,Object.assign({},OV.get(id)||{},ch));if(log)LOGS.unshift(Object.assign({scope:'palm',palmId:id,sector:+id.split('-')[0],by:me,at:'9',pending:1},log))}
+else if(it.a==='addLog'){const[e,b64]=it.args;LOGS.unshift(Object.assign({},e,{by:me,at:'9',pending:1,photo:b64?('data:image/jpeg;base64,'+b64):''}))}
+else if(it.a==='saveIrr'){const[s,c]=it.args;IRR[s]=c}
+else if(it.a==='deleteLog'){const[id]=it.args;LOGS=LOGS.filter(l=>l.id!==id)}}}
+function fail(e){const m=String(e&&e.message||e);if(/PIN/.test(m))toast('الرقم السري غلط');else toast(m.length<80?m:'ما اتحفظش — جرّب تاني');refresh()}
+function photoB64(file){return new Promise((res,rej)=>{try{
+const url=URL.createObjectURL(file);const img=new Image();img.onload=()=>{const s=Math.min(1,1280/Math.max(img.width,img.height));
+const c=document.createElement('canvas');c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+URL.revokeObjectURL(url);res(c.toDataURL('image/jpeg',.8).split(',')[1])};img.onerror=rej;img.src=url}catch(e){rej(e)}})}
+const okToast=r=>toast(r===QUEUED?'اتحفظ على الموبايل — هيتبعت أول ما النت يرجع':'اتحفظ ✓');
+async function savePalm(id,changes,logEntry){
+const en=await ensureName();if(!en)return false;if(en==='asked')openPalm(id);
+const log=logEntry?Object.assign({d:today(),cid:uid()},logEntry):null;
+OV.set(id,Object.assign({},OV.get(id)||{},changes));
+if(log)LOGS=[Object.assign({scope:'palm',palmId:id,sector:+id.split('-')[0],by:me,at:'9'},log),...LOGS];
+render();
+try{const r=await send('savePalm',[id,changes,log,me]);okToast(r);if(r!==QUEUED)refresh();return true}catch(e){fail(e);return false}
+}
+async function addLog(entry,b64){
+if(!await ensureName())return false;
+entry=Object.assign({cid:uid()},entry);
+const tmp=Object.assign({},entry,{by:me,at:'9',photo:b64?('data:image/jpeg;base64,'+b64):''});LOGS=[tmp,...LOGS];render();
+try{const r=await send('addLog',[entry,b64||null,me]);okToast(r);if(r!==QUEUED)refresh();return true}catch(e){fail(e);return false}
+}
+async function deleteLog(l){
+if(!l.id){toast('التسجيل ده لسه ما اتبعتش');return}
+LOGS=LOGS.filter(x=>x.id!==l.id);render();
+try{await send('deleteLog',[l.id]);toast('اتمسح')}catch(e){fail(e)}
+}
+async function saveIrr(s,c){IRR[s]=c;render();try{okToast(await send('saveIrr',[s,c]))}catch(e){fail(e)}}
+let loading=false,lastSync=LS.get('wf_sync')||'';
+function applyData(r){OV.clear();for(const[id,v,pl,pd,st,nt]of r.palms)OV.set(id,{variety:v,planted:!!pl,plantedDate:pd||'',status:st,note:nt});LOGS=r.logs||[];IRR=r.irr||{};applyQueued();render()}
+function updateStatus(){const s=$('#sync');const q=QUEUE.length;
+s.textContent=(navigator.onLine?'':'أوفلاين • ')+(lastSync?('آخر تحديث '+lastSync):'لسه ما اتحدثش')+(q?(' • '+q+' تسجيل مستني النت'):'');}
+async function refresh(){
+if(loading)return;loading=true;
+try{if(QUEUE.length)await flushQueue();const r=await api('getAll');LS.set('wf_cache',JSON.stringify(r));
+lastSync=new Date().toLocaleString('en-GB',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});LS.set('wf_sync',lastSync);applyData(r);$('#banner').classList.remove('on');
+}catch(e){if(!(e instanceof NetErr))banner('مشكلة في قراية البيانات: '+e.message)}
+finally{loading=false;updateStatus()}
+}
+function banner(t){const b=$('#banner');b.textContent=t;b.classList.add('on')}
+/* ---------- GPS: أنا فين ---------- */
+const meDot=sv('g',{visibility:'hidden',style:'pointer-events:none'});
+const meAcc=sv('circle',{r:5,fill:'rgba(26,115,232,.15)',stroke:'rgba(26,115,232,.5)','stroke-width':1,'vector-effect':'non-scaling-stroke'});
+const meC=sv('circle',{r:3,fill:'#1A73E8',stroke:'#fff','stroke-width':2,'vector-effect':'non-scaling-stroke'});
+meDot.append(meAcc,meC);gTop.append(meDot);
+function llToLocal(lat,lon){const[a,b]=F.llAff;return[a[0]+a[1]*lat+a[2]*lon,b[0]+b[1]*lat+b[2]*lon]}
+$('#gps').onclick=()=>{
+if(!navigator.geolocation){toast('الموبايل ده مش بيدعم تحديد الموقع');return}
+toast('بحدد مكانك…');
+navigator.geolocation.getCurrentPosition(pos=>{
+const{latitude:la,longitude:lo,accuracy:ac}=pos.coords;const[x,y]=llToLocal(la,lo);
+meDot.setAttribute('visibility','visible');meAcc.setAttribute('cx',x);meAcc.setAttribute('cy',y);meAcc.setAttribute('r',Math.max(3,ac));meC.setAttribute('cx',x);meC.setAttribute('cy',y);
+let best=null,bd=1e9;for(const q of PALMS){const d=Math.hypot(q.p[0]-x,q.p[1]-y);if(d<bd){bd=d;best=q}}
+showView('map');
+if(best&&bd<=12){focusPalm(best.id);openPalm(best.id);toast('أقرب نخلة '+C(best.id)+' على بعد '+Math.round(bd)+' م (دقة الموقع ±'+Math.round(ac)+' م)')}
+else{const w=Math.max(120,bd*2.5),r=svg.getBoundingClientRect();vb={x:x-w/2,y:y-w*r.height/r.width/2,w,h:w*r.height/r.width};setVB();
+toast(bd>2000?'انت مش في الأرض دلوقتي':'انت على بعد '+Math.round(bd)+' م من أقرب نخلة ('+(best?C(best.id):'')+')')}
+},err=>toast(err.code===1?'لازم تسمح للصفحة تعرف مكانك من إعدادات المتصفح':'مش قادر أحدد المكان — اتأكد إن الـ GPS شغال'),{enableHighAccuracy:true,timeout:20000,maximumAge:5000});
+};
+/* ---------- boot ---------- */
+$('#whoName').textContent=me||'اكتب اسمك';
+$('#who').onclick=async()=>{const n=await askText('اسمك ايه؟','الاسم بيتكتب جنب كل تسجيل.',me);if(n){me=n;LS.set('wf_name',n);$('#whoName').textContent=n}};
+$('#refresh').onclick=()=>{refresh();toast('بحدّث…')};
+try{const c=JSON.parse(LS.get('wf_cache')||'null');if(c)applyData(c)}catch(e){}
+paintMap();showView('map');updateStatus();
+window.addEventListener('resize',()=>{if(state.view==='map'){const c=center();const r=svg.getBoundingClientRect();const ar=r.width/r.height;const h=vb.w/ar;vb.y=c.y-h/2;vb.h=h;setVB()}});
+refresh();
+window.addEventListener('online',()=>{updateStatus();refresh()});
+window.addEventListener('offline',updateStatus);
+setInterval(()=>{if(document.visibilityState==='visible'&&!(state.sel&&/^[el]:/.test(state.sel)))refresh()},60000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refresh()});
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+})();
+</script>
+</body>
+</html>
